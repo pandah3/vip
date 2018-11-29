@@ -22,6 +22,13 @@ import { trackEvent } from 'lib/tracker';
 import pager from 'lib/cli/pager';
 
 function uncaughtError( err ) {
+	// If it's a non existant subcommand, do not log the unexpected error message
+	if ( 'ENOENT' === err.code && err.syscall.startsWith( 'spawn' ) ) {
+		const subcommand = err.path.split( '-' )[ 1 ];
+		console.log( ' ', chalk.red( '✕' ), `\`${ subcommand }\` is not a valid subcommand. See \`vip help\`` );
+		return;
+	}
+
 	console.log();
 	console.log( ' ', chalk.red( '✕' ), ' Unexpected error: Please contact VIP Support with the following error:' );
 	console.log( ' ', chalk.dim( err.stack ) );
